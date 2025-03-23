@@ -173,3 +173,4 @@
 /Users/d.a.knox/Desktop/ProductManagement/ProductManagementApi/bin/Debug/net8.0/EPPlus.dll
 /Users/d.a.knox/Desktop/ProductManagement/ProductManagementApi/bin/Debug/net8.0/Microsoft.IO.RecyclableMemoryStream.dll
 /Users/d.a.knox/Desktop/ProductManagement/ProductManagementApi/bin/Debug/net8.0/System.Xml.XPath.XmlDocument.dll
+/Users/d.a.knox/Desktop/ProductManagement/ProductManagementApi/obj/Debug/net8.0/ProductManagementApi.sourcelink.json
