@@ -43,5 +43,10 @@ namespace ProductManagementApi.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<int> GetProductCountAsync()
+        {
+            return await _context.Products.CountAsync();
+        }
     }
 }

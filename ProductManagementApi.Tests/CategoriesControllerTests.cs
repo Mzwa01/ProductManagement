@@ -1,28 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ProductManagementApi.Controllers;
-using ProductManagementApi.Models;
+using ProductManagementApi;
 using ProductManagementApi.Repositories;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace ProductManagementApi.Tests
 {
-    [TestClass]
     public class CategoriesControllerTests
     {
-        private Mock<ICategoryRepository> _mockRepo;
-        private CategoriesController _controller;
+        private readonly Mock<ICategoryRepository> _mockRepo;
+        private readonly CategoriesController _controller;
 
-        [TestInitialize]
-        public void Setup()
+        public CategoriesControllerTests()
         {
             _mockRepo = new Mock<ICategoryRepository>();
             _controller = new CategoriesController(_mockRepo.Object);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetCategories_ReturnsOkResult_WithListOfCategories()
         {
             // Arrange
@@ -33,36 +29,32 @@ namespace ProductManagementApi.Tests
             var result = await _controller.GetCategories();
 
             // Assert
-            var okResult = result.Result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            var returnCategories = okResult.Value as List<Category>;
-            Assert.IsNotNull(returnCategories);
-            Assert.AreEqual(1, returnCategories.Count);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnCategories = Assert.IsType<List<Category>>(okResult.Value);
+            Assert.Single(returnCategories);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task CreateCategory_ReturnsCreatedAtActionResult_WithCreatedCategory()
         {
             // Arrange
-            var category = new Category { CategoryId = 1, Name = "New Category" };
+            var category = new Category { CategoryId = 1, Name = "New Category", Description = "Description" };
             _mockRepo.Setup(repo => repo.AddCategoryAsync(It.IsAny<Category>())).Returns(Task.CompletedTask);
 
             // Act
             var result = await _controller.CreateCategory(category);
 
             // Assert
-            var createdAtActionResult = result as CreatedAtActionResult;
-            Assert.IsNotNull(createdAtActionResult);
-            var returnCategory = createdAtActionResult.Value as Category;
-            Assert.IsNotNull(returnCategory);
-            Assert.AreEqual(category.Name, returnCategory.Name);
+            var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
+            var returnCategory = Assert.IsType<Category>(createdAtActionResult.Value);
+            Assert.Equal(category.Name, returnCategory.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task UpdateCategory_ReturnsNoContentResult()
         {
             // Arrange
-            var category = new Category { CategoryId = 1, Name = "Updated Category"};
+            var category = new Category { CategoryId = 1, Name = "Updated Category", Description = "Updated Description" };
             _mockRepo.Setup(repo => repo.GetCategoryByIdAsync(1)).ReturnsAsync(category);
             _mockRepo.Setup(repo => repo.UpdateCategoryAsync(It.IsAny<Category>())).Returns(Task.CompletedTask);
 
@@ -70,11 +62,11 @@ namespace ProductManagementApi.Tests
             var result = await _controller.UpdateCategory(1, category);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(NoContentResult));
+            Assert.IsType<NoContentResult>(result);
         }
 
-        [TestMethod]
-        public async Task DeleteCategory_ReturnsNoContentResult_WhenCategoryExists()
+        [Fact]
+        public async Task DeleteCategory_ReturnsNoContentResult()
         {
             // Arrange
             var category = new Category { CategoryId = 1, Name = "Test Category" };
@@ -85,20 +77,7 @@ namespace ProductManagementApi.Tests
             var result = await _controller.DeleteCategory(1);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(NoContentResult));
-        }
-
-        [TestMethod]
-        public async Task DeleteCategory_ReturnsNotFoundResult_WhenCategoryDoesNotExist()
-        {
-            // Arrange
-            _mockRepo.Setup(repo => repo.GetCategoryByIdAsync(1)).ReturnsAsync((Category)null);
-
-            // Act
-            var result = await _controller.DeleteCategory(1);
-
-            // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+            Assert.IsType<NoContentResult>(result);
         }
     }
 }

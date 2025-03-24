@@ -123,7 +123,7 @@ namespace ProductManagementApi.Controllers
                             CategoryName = worksheet.Cells[row, 3].Text,
                             Price = decimal.Parse(worksheet.Cells[row, 4].Text),
                             Image = worksheet.Cells[row, 5].Text,
-                            ProductCode = GenerateProductCode(),
+                            ProductCode = await GenerateSequentialProductCode(),
                             CreatedDate = DateTime.UtcNow
                         };
 
@@ -135,12 +135,14 @@ namespace ProductManagementApi.Controllers
             return Ok("Products imported successfully.");
         }
 
-        private string GenerateProductCode()
+        private async Task<string> GenerateSequentialProductCode()
         {
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             var yearMonth = now.ToString("yyyyMM");
-            var sequentialCode = (_productRepository.GetProductsAsync().Result.Count() + 1).ToString("D3");
+            var productCount = await _productRepository.GetProductCountAsync();
+            var sequentialCode = (productCount + 1).ToString("D3");
             return $"{yearMonth}-{sequentialCode}";
         }
+
     }
 }
