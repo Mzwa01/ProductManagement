@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { ErrorContext } from '../context/ErrorContext';
+
 const API_URL = 'http://localhost:5190/api';
 
 const agent = axios.create({
@@ -15,6 +17,51 @@ agent.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Modify the response interceptor to accept a setError function
+export const setupInterceptors = (setError) => {
+  agent.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      let errorMessage = 'An error occurred';
+      if (error.response) {
+        // Handle specific HTTP status codes
+        switch (error.response.status) {
+          case 400:
+            errorMessage = 'Bad request. Please check your input.';
+            break;
+          case 401:
+            errorMessage = 'Unauthorized. Please log in again.';
+            break;
+          case 403:
+            errorMessage = 'Forbidden. You do not have permission to access this resource.';
+            break;
+          case 404:
+            errorMessage = 'Resource not found.';
+            break;
+          case 500:
+            errorMessage = 'Internal server error. Please try again later.';
+            // Redirect to the special 500 error page
+            window.location.href = '/500';
+            break;
+          default:
+            errorMessage = error.response.data?.message || 'An error occurred';
+        }
+      } else if (error.request) {
+        errorMessage = 'No response from the server. Please check your connection.';
+      } else {
+        errorMessage = error.message || 'An error occurred';
+      }
+
+      // Use the setError function to display the error message in a Snackbar
+      if (typeof setError === 'function') {
+        setError(errorMessage);
+      }
+
+      return Promise.reject(errorMessage);
+    }
+  );
+};
 
 // Categories API
 agent.categories = {

@@ -7,6 +7,8 @@ import Products from './components/Products';
 import Login from './components/Login';
 import Register from './components/Register';
 import agent from './api/agent';
+import { ErrorProvider } from './context/ErrorContext';
+import Error500 from './components/Error500';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
@@ -28,6 +30,7 @@ function App() {
   };
 
   return (
+    <ErrorProvider>
     <Router>
       <AppBar position="static">
         <Toolbar>
@@ -87,9 +90,11 @@ function App() {
           />
           <Route path="/login" element={<Login setToken={handleSetToken} />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/500" element={<Error500 />} />
         </Routes>
       </Container>
     </Router>
+    </ErrorProvider>
   );
 }
 
