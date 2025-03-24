@@ -1,4 +1,4 @@
-using ProductManagementApi;
+using ProductManagementApi.Models;
 
 namespace ProductManagementApi.Repositories
 {
